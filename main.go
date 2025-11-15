@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/tifye/clock-in/cmd"
+)
 
 func main() {
-	fmt.Println("Meep")
+	cmd.Execute()
 }
