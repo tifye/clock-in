@@ -19,11 +19,19 @@ func newRootCommand() *cobra.Command {
 	return cmd
 }
 
+func addCommands(cmd *cobra.Command) {
+	cmd.AddCommand(
+		newInCommand(),
+		newOutCommand(),
+	)
+}
+
 func Execute() {
 	logger := log.NewWithOptions(os.Stdout, log.Options{})
 	logger.Print("Meep")
 
 	rootCmd := newRootCommand()
+	addCommands(rootCmd)
 
 	err := rootCmd.ExecuteContext(context.TODO())
 	if err != nil {
