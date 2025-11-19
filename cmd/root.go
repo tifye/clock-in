@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
-	"github.com/tifye/clock-in/cmd/chrono"
+	"github.com/tifye/chrono/cmd/chrono"
 )
 
 func newRootCommand(_ *chrono.Context) *cobra.Command {

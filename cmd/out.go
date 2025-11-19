@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tifye/clock-in/cmd/chrono"
+	"github.com/tifye/chrono/cmd/chrono"
 )
 
 func newOutCommand(_ *chrono.Context) *cobra.Command {
