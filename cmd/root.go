@@ -3,10 +3,12 @@ package cmd
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/tifye/chrono/cmd/chrono"
+	"github.com/tifye/chrono/internal/store"
 )
 
 func newRootCommand(_ *chrono.Context) *cobra.Command {
@@ -29,10 +31,14 @@ func addCommands(cmd *cobra.Command, chrono *chrono.Context) {
 }
 
 func Execute() {
-	logger := log.NewWithOptions(os.Stdout, log.Options{})
-	chrono := &chrono.Context{
-		Logger: logger,
-	}
+	logger := log.NewWithOptions(os.Stdout, log.Options{
+		Level: log.DebugLevel,
+	})
+	chrono := chrono.NewContext(
+		logger,
+		store.NewFilesSessionStore(logger.WithPrefix("store")),
+		time.Now(),
+	)
 
 	rootCmd := newRootCommand(chrono)
 	addCommands(rootCmd, chrono)

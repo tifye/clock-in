@@ -1,9 +1,42 @@
 package chrono
 
 import (
+	"time"
+
 	"github.com/charmbracelet/log"
+	"github.com/tifye/chrono/internal/assert"
 )
 
+type SessionStorer interface {
+	ClockIn(time.Time) error
+	ClockOut(time.Time) error
+	ProjectSet(string) error
+}
+
 type Context struct {
-	Logger *log.Logger
+	// The time when the context was created. Used for clocking in and out etc.
+	now time.Time
+
+	Logger       *log.Logger
+	SessionStore SessionStorer
+}
+
+func NewContext(
+	logger *log.Logger,
+	storer SessionStorer,
+	now time.Time,
+) *Context {
+	assert.AssertNotNil(logger)
+	assert.AssertNotNil(storer)
+	return &Context{
+		now:          now,
+		Logger:       logger,
+		SessionStore: storer,
+	}
+}
+
+func (c *Context) Now() time.Time {
+	// todo: remove time package dependency
+	assert.Assert(c.now.Before(time.Now()), "context 'now' is zero value")
+	return c.now
 }
