@@ -1,8 +1,11 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+	"github.com/tifye/clock-in/cmd/chrono"
+)
 
-func newOutCommand() *cobra.Command {
+func newOutCommand(_ *chrono.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "out",
 		Short: "Check out and end the active session",

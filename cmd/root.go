@@ -6,9 +6,10 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
+	"github.com/tifye/clock-in/cmd/chrono"
 )
 
-func newRootCommand() *cobra.Command {
+func newRootCommand(_ *chrono.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "clock",
 		Run: func(cmd *cobra.Command, _ []string) {
@@ -19,20 +20,22 @@ func newRootCommand() *cobra.Command {
 	return cmd
 }
 
-func addCommands(cmd *cobra.Command) {
+func addCommands(cmd *cobra.Command, chrono *chrono.Context) {
 	cmd.AddCommand(
-		newInCommand(),
-		newOutCommand(),
-		newSummaryCommand(),
+		newInCommand(chrono),
+		newOutCommand(chrono),
+		newSummaryCommand(chrono),
 	)
 }
 
 func Execute() {
 	logger := log.NewWithOptions(os.Stdout, log.Options{})
-	logger.Print("Meep")
+	chrono := &chrono.Context{
+		Logger: logger,
+	}
 
-	rootCmd := newRootCommand()
-	addCommands(rootCmd)
+	rootCmd := newRootCommand(chrono)
+	addCommands(rootCmd, chrono)
 
 	err := rootCmd.ExecuteContext(context.TODO())
 	if err != nil {

@@ -1,8 +1,11 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+	"github.com/tifye/clock-in/cmd/chrono"
+)
 
-func newSummaryCommand() *cobra.Command {
+func newSummaryCommand(_ *chrono.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "out",
 		Short: "Summary of time spent on projects",
