@@ -1,6 +1,7 @@
 package chrono
 
 import (
+	"context"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -8,9 +9,9 @@ import (
 )
 
 type SessionStorer interface {
-	ClockIn(time.Time) error
-	ClockOut(time.Time) error
-	ProjectSet(string) error
+	ClockIn(context.Context, time.Time) error
+	ClockOut(context.Context, time.Time) error
+	ProjectSet(context.Context, string) error
 }
 
 type Context struct {

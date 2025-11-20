@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"io"
 	"os"
 	"time"
 
@@ -36,7 +37,7 @@ func Execute() {
 	})
 	chrono := chrono.NewContext(
 		logger,
-		store.NewFilesSessionStore(logger.WithPrefix("store")),
+		store.NewFileSessionStore(logger.WithPrefix("store"), io.Discard),
 		time.Now(),
 	)
 
