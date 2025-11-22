@@ -55,13 +55,17 @@ func TestClockInValidTimeWritesEvent(t *testing.T) {
 func TestClockOutValidTimeWritesEvent(t *testing.T) {
 	store, buf := newTestStore(t)
 
+	if err := store.ClockIn(context.Background(), time.Unix(123, 0)); err != nil {
+		t.Fatalf("ClockIn() error = %v, want nil", err)
+	}
+
 	ts := time.Unix(456, 0)
 	if err := store.ClockOut(context.Background(), ts); err != nil {
 		t.Fatalf("ClockOut() error = %v, want nil", err)
 	}
 
 	got := buf.String()
-	want := "out 456\n"
+	want := "in 123\nout 456\n"
 	if got != want {
 		t.Fatalf("buffer = %q, want %q", got, want)
 	}

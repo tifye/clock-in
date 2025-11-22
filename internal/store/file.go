@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -13,7 +14,15 @@ import (
 	"github.com/tifye/chrono/internal/assert"
 )
 
-const maxProjectNameLength = 50
+const (
+	maxProjectNameLength = 50
+)
+
+var (
+	ErrClockInBeforeClockOut    error = errors.New("cannot clock in before clocking out of previous session")
+	ErrClockOutBeforeClockIn    error = errors.New("cannot clock out before clocking in")
+	ErrProjectSetWhileClockedIn error = errors.New("cannot set project while clocked in")
+)
 
 type SessionStore struct {
 	logger *log.Logger
@@ -40,6 +49,15 @@ func (s *SessionStore) ClockIn(ctx context.Context, t time.Time) error {
 	assert.Assert(!t.IsZero(), "zero time value")
 	assert.Assert(s.now().After(t), "expected time to be before time.Now")
 
+	state, err := s.readState(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !state.Since.IsZero() && state.ClockState == InClockState {
+		return ErrClockInBeforeClockOut
+	}
+
 	unixStr := strconv.FormatInt(t.Unix(), 10)
 	data := formatEvent("in", unixStr)
 	io.WriteString(s.target, data)
@@ -50,6 +68,15 @@ func (s *SessionStore) ClockIn(ctx context.Context, t time.Time) error {
 func (s *SessionStore) ClockOut(ctx context.Context, t time.Time) error {
 	assert.Assert(!t.IsZero(), "zero time value")
 	assert.Assert(s.now().After(t), "expected time to be before time.Now")
+
+	state, err := s.readState(ctx)
+	if err != nil {
+		return err
+	}
+
+	if state.Since.IsZero() || state.ClockState != InClockState {
+		return ErrClockOutBeforeClockIn
+	}
 
 	unixStr := strconv.FormatInt(t.Unix(), 10)
 	data := formatEvent("out", unixStr)
@@ -62,13 +89,22 @@ func (s *SessionStore) ProjectSet(ctx context.Context, project string) error {
 	assert.AssertNotEmpty(project, "expect non-empty project name")
 	assert.Assert(len(project) <= maxProjectNameLength, "project name unexpectedly long")
 
+	state, err := s.readState(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !state.Since.IsZero() && state.ClockState == InClockState {
+		return ErrProjectSetWhileClockedIn
+	}
+
 	data := formatEvent("project", project)
 	io.WriteString(s.target, data)
 
 	return nil
 }
 
-func (s *SessionStore) State(ctx context.Context) (State, error) {
+func (s *SessionStore) readState(ctx context.Context) (State, error) {
 	if _, err := s.target.Seek(0, io.SeekStart); err != nil {
 		return State{}, err
 	}
@@ -117,6 +153,15 @@ func (s *SessionStore) State(ctx context.Context) (State, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
+		return State{}, err
+	}
+
+	return state, nil
+}
+
+func (s *SessionStore) State(ctx context.Context) (State, error) {
+	state, err := s.readState(ctx)
+	if err != nil {
 		return State{}, err
 	}
 
