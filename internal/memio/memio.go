@@ -72,6 +72,7 @@ func (b *Buffer) Seek(offset int64, whence int) (int64, error) {
 
 	pos := base + offset
 	assert.Assert(pos >= 0, "negative resulting offset")
+	assert.Assert(pos <= int64(len(b.buf)), "resulting offset beyond buffer upper bound")
 
 	b.off = pos
 	return b.off, nil
