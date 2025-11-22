@@ -6,26 +6,30 @@ import (
 )
 
 func TestNewBufferInitialContent(t *testing.T) {
-	b := NewBuffer("hello")
+	b := NewBuffer("mino")
 
-	if got := b.String(); got != "hello" {
-		t.Fatalf("String() = %q, want %q", got, "hello")
+	got := b.String()
+	want := "mino"
+	if got != want {
+		t.Fatalf("String() = %q, want %q", got, want)
 	}
 }
 
 func TestBufferReadSequential(t *testing.T) {
-	b := NewBuffer("hello")
-	buf := make([]byte, 5)
+	b := NewBuffer("mino")
+	buf := make([]byte, 4)
 
 	n, err := b.Read(buf)
 	if err != nil && err != io.EOF {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if n != 5 {
-		t.Fatalf("n = %d, want 5", n)
+	if n != 4 {
+		t.Fatalf("n = %d, want 4", n)
 	}
-	if got := string(buf); got != "hello" {
-		t.Fatalf("read %q, want %q", got, "hello")
+	got := string(buf)
+	want := "mino"
+	if got != want {
+		t.Fatalf("read %q, want %q", got, want)
 	}
 
 	n, err = b.Read(buf)
@@ -40,20 +44,22 @@ func TestBufferReadSequential(t *testing.T) {
 func TestBufferWriteAndString(t *testing.T) {
 	b := NewBuffer("")
 
-	n, err := b.Write([]byte("hello"))
+	n, err := b.Write([]byte("mino"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if n != 5 {
-		t.Fatalf("n = %d, want 5", n)
+	if n != 4 {
+		t.Fatalf("n = %d, want 4", n)
 	}
-	if got := b.String(); got != "hello" {
-		t.Fatalf("String() = %q, want %q", got, "hello")
+	got := b.String()
+	want := "mino"
+	if got != want {
+		t.Fatalf("String() = %q, want %q", got, want)
 	}
 }
 
 func TestBufferSeekAndOverwrite(t *testing.T) {
-	b := NewBuffer("hello")
+	b := NewBuffer("mino")
 
 	pos, err := b.Seek(1, io.SeekStart)
 	if err != nil {
@@ -63,40 +69,44 @@ func TestBufferSeekAndOverwrite(t *testing.T) {
 		t.Fatalf("pos = %d, want 1", pos)
 	}
 
-	n, err := b.Write([]byte("i"))
+	n, err := b.Write([]byte("eep"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if n != 1 {
-		t.Fatalf("n = %d, want 1", n)
+	if n != 3 {
+		t.Fatalf("n = %d, want 3", n)
 	}
 
-	if got := b.String(); got != "hillo" {
-		t.Fatalf("String() = %q, want %q", got, "hillo")
+	got := b.String()
+	want := "meep"
+	if got != want {
+		t.Fatalf("String() = %q, want %q", got, want)
 	}
 }
 
 func TestBufferSeekEndAndAppend(t *testing.T) {
-	b := NewBuffer("hi")
+	b := NewBuffer("mino")
 
 	pos, err := b.Seek(0, io.SeekEnd)
 	if err != nil {
 		t.Fatalf("unexpected error from Seek: %v", err)
 	}
-	if pos != 2 {
-		t.Fatalf("pos = %d, want 2", pos)
+	if pos != 4 {
+		t.Fatalf("pos = %d, want 4", pos)
 	}
 
-	n, err := b.Write([]byte(" there"))
+	n, err := b.Write([]byte(" meep"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if n != 6 {
-		t.Fatalf("n = %d, want 6", n)
+	if n != 5 {
+		t.Fatalf("n = %d, want 5", n)
 	}
 
-	if got := b.String(); got != "hi there" {
-		t.Fatalf("String() = %q, want %q", got, "hi there")
+	got := b.String()
+	want := "mino meep"
+	if got != want {
+		t.Fatalf("String() = %q, want %q", got, want)
 	}
 }
 

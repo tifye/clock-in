@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"context"
-	"io"
 	"os"
 	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 	"github.com/tifye/chrono/cmd/chrono"
+	"github.com/tifye/chrono/internal/memio"
 	"github.com/tifye/chrono/internal/store"
 )
 
@@ -35,9 +35,10 @@ func Execute() {
 	logger := log.NewWithOptions(os.Stdout, log.Options{
 		Level: log.DebugLevel,
 	})
+	buffer := memio.NewBuffer("")
 	chrono := chrono.NewContext(
 		logger,
-		store.NewFileSessionStore(logger.WithPrefix("store"), io.Discard),
+		store.NewSessionStore(logger.WithPrefix("store"), buffer),
 		time.Now(),
 	)
 
@@ -49,4 +50,6 @@ func Execute() {
 		logger.Error("Error executing command", "error", err)
 		os.Exit(1)
 	}
+
+	logger.Print(buffer.String())
 }

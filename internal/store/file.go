@@ -2,7 +2,9 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"strconv"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -11,33 +13,50 @@ import (
 
 type SessionStore struct {
 	logger *log.Logger
-	target io.Writer
+	target io.ReadWriteSeeker
 }
 
-func NewFileSessionStore(logger *log.Logger, w io.Writer) *SessionStore {
+func NewSessionStore(logger *log.Logger, target io.ReadWriteSeeker) *SessionStore {
 	assert.AssertNotNil(logger)
+	assert.AssertNotNil(target)
 	return &SessionStore{
 		logger: logger,
+		target: target,
 	}
 }
 
 func (s *SessionStore) ClockIn(ctx context.Context, t time.Time) error {
 	assert.Assert(!t.IsZero(), "zero time value")
 	assert.Assert(time.Now().After(t), "expected time to be before time.Now")
-	s.logger.Debug("storing [in] event")
+
+	unixStr := strconv.FormatInt(t.Unix(), 10)
+	data := formatEvent("in", unixStr)
+	io.WriteString(s.target, data)
+
 	return nil
 }
 
 func (s *SessionStore) ClockOut(ctx context.Context, t time.Time) error {
 	assert.Assert(!t.IsZero(), "zero time value")
 	assert.Assert(time.Now().After(t), "expected time to be before time.Now")
-	s.logger.Debug("storing [out] event")
+
+	unixStr := strconv.FormatInt(t.Unix(), 10)
+	data := formatEvent("out", unixStr)
+	io.WriteString(s.target, data)
+
 	return nil
 }
 
 func (s *SessionStore) ProjectSet(ctx context.Context, project string) error {
 	assert.AssertNotEmpty(project, "expect non-empty project name")
 	assert.Assert(len(project) < 50, "project name unexpectedly long")
-	s.logger.Debug("storing [project] event")
+
+	data := formatEvent("project", project)
+	io.WriteString(s.target, data)
+
 	return nil
+}
+
+func formatEvent(event string, payload string) string {
+	return fmt.Sprintf("%s %s", event, payload)
 }
