@@ -58,5 +58,5 @@ func (s *SessionStore) ProjectSet(ctx context.Context, project string) error {
 }
 
 func formatEvent(event string, payload string) string {
-	return fmt.Sprintf("%s %s", event, payload)
+	return fmt.Sprintf("%s %s\n", event, payload)
 }
