@@ -47,7 +47,7 @@ func Execute() {
 
 	chronoCtx := chrono.NewContext(
 		logger,
-		store.NewSessionStore(logger.WithPrefix("store"), file),
+		store.NewSessionStore(logger.WithPrefix("store"), file, time.Now),
 		time.Now(),
 	)
 

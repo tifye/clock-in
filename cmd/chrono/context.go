@@ -6,12 +6,14 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/tifye/chrono/internal/assert"
+	"github.com/tifye/chrono/internal/store"
 )
 
 type SessionStorer interface {
 	ClockIn(context.Context, time.Time) error
 	ClockOut(context.Context, time.Time) error
 	ProjectSet(context.Context, string) error
+	State(context.Context) (store.State, error)
 }
 
 type Context struct {

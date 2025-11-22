@@ -15,14 +15,14 @@ func newTestStore(t *testing.T) (*SessionStore, *memio.Buffer) {
 
 	logger := log.New(io.Discard)
 	buf := memio.NewBuffer("")
-	store := NewSessionStore(logger, buf)
+	store := NewSessionStore(logger, buf, time.Now)
 
 	return store, buf
 }
 
 func TestNewFileSessionStoreNilLoggerAllowed(t *testing.T) {
 	var rw io.ReadWriteSeeker = memio.NewBuffer("")
-	_ = NewSessionStore(nil, rw)
+	_ = NewSessionStore(nil, rw, time.Now)
 }
 
 func TestNewFileSessionStoreNilTargetPanics(t *testing.T) {
@@ -34,7 +34,7 @@ func TestNewFileSessionStoreNilTargetPanics(t *testing.T) {
 		}
 	}()
 
-	_ = NewSessionStore(logger, nil)
+	_ = NewSessionStore(logger, nil, time.Now)
 }
 
 func TestClockInValidTimeWritesEvent(t *testing.T) {
@@ -46,7 +46,7 @@ func TestClockInValidTimeWritesEvent(t *testing.T) {
 	}
 
 	got := buf.String()
-	want := "in 123"
+	want := "in 123\n"
 	if got != want {
 		t.Fatalf("buffer = %q, want %q", got, want)
 	}
@@ -61,7 +61,7 @@ func TestClockOutValidTimeWritesEvent(t *testing.T) {
 	}
 
 	got := buf.String()
-	want := "out 456"
+	want := "out 456\n"
 	if got != want {
 		t.Fatalf("buffer = %q, want %q", got, want)
 	}
@@ -75,7 +75,7 @@ func TestProjectSetValidProjectWritesEvent(t *testing.T) {
 	}
 
 	got := buf.String()
-	want := "project proj"
+	want := "project proj\n"
 	if got != want {
 		t.Fatalf("buffer = %q, want %q", got, want)
 	}
@@ -95,7 +95,7 @@ func TestMultipleEventsAreAppended(t *testing.T) {
 	}
 
 	got := buf.String()
-	want := "in 1out 2project p"
+	want := "in 1\nout 2\nproject p\n"
 	if got != want {
 		t.Fatalf("buffer = %q, want %q", got, want)
 	}
