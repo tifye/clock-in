@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/tifye/clock-in/cmd"
+	"github.com/tifye/chrono/cmd"
 )
 
 func main() {
