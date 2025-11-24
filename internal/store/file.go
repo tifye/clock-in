@@ -60,8 +60,9 @@ func (s *SessionStore) ClockIn(ctx context.Context, t time.Time) error {
 
 	unixStr := strconv.FormatInt(t.Unix(), 10)
 	data := formatEvent("in", unixStr)
-	io.WriteString(s.target, data)
-
+	if _, err := io.WriteString(s.target, data); err != nil {
+		return err
+	}
 	return nil
 }
 
