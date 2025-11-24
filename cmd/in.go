@@ -16,7 +16,7 @@ func newInCommand(c *chrono.Context) *cobra.Command {
 			err := c.SessionStore.ClockIn(cmd.Context(), c.Now())
 			if err != nil {
 				if errors.Is(err, store.ErrClockInBeforeClockOut) {
-					c.Logger.Print("Already clocked in; run 'clock out' first")
+					c.Logger.Print("Already clocked in; run 'out' first")
 					return nil
 				}
 				return err
